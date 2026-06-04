@@ -1,0 +1,7 @@
+module.exports = [
+"[project]/hris-attendance-dashboard/.next-internal/server/app/dashboard/manager-hr/karyawan/page/actions.js [app-rsc] (server actions loader, ecmascript)", ((__turbopack_context__, module, exports) => {
+
+}),
+];
+
+//# sourceMappingURL=e5fe3__next-internal_server_app_dashboard_manager-hr_karyawan_page_actions_8cf877aa.js.map

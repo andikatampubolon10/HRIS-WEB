@@ -1,0 +1,11 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/_global-error/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__9b4a206b._.js")
+R.c("server/chunks/ssr/HRIS-WEB_4ee5820b._.js")
+R.c("server/chunks/ssr/7a46d_next_dist_ae834776._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__a3aeffc3._.js")
+R.c("server/chunks/ssr/7a46d_bdf05aaa._.js")
+R.c("server/chunks/ssr/7a46d_next_dist_84465856._.js")
+R.c("server/chunks/ssr/HRIS-WEB_app_6fb00740._.js")
+R.c("server/chunks/ssr/HRIS-WEB__next-internal_server_app__global-error_page_actions_9e6dc659.js")
+R.m(1227)
+module.exports=R.m(1227).exports

@@ -1,0 +1,3 @@
+module.exports=[93695,(a,b,c)=>{b.exports=a.x("next/dist/shared/lib/no-fallback-error.external.js",()=>require("next/dist/shared/lib/no-fallback-error.external.js"))},36335,a=>{a.n(a.i(25258))},77800,a=>{a.n(a.i(50291))},12902,a=>{a.n(a.i(89771))},17469,a=>{a.n(a.i(6050))},10175,a=>{a.n(a.i(23138))},28601,a=>{a.n(a.i(52e3))},57269,a=>{"use strict";var b=a.i(87549);function c(){return(0,b.jsxs)("div",{className:"p-6",children:[(0,b.jsx)("h1",{className:"text-2xl font-bold text-gray-900",children:"Biometrik"}),(0,b.jsx)("p",{className:"mt-2 text-gray-600",children:"Halaman manajemen biometrik"})]})}a.s(["default",()=>c])}];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__26fb4f08._.js.map

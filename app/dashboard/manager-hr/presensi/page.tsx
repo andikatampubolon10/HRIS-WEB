@@ -1,0 +1,663 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Download,
+  Calendar,
+  MapPin,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  MoreVertical,
+  ChevronDown,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import type { BadgeProps } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import type { DateRange } from "react-day-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as UiCalendar } from "@/components/ui/calender";
+import {
+  attendanceManagerApi,
+  type AttendanceStatusUI,
+  type ManagerAttendanceItem,
+} from "@/lib/api/attendance-manager";
+import { geofenceApi } from "@/lib/api/geofence";
+import { resolveAttendanceLocationLabel } from "@/lib/utils/attendance-location";
+import type { Geofence } from "@/types/geofence";
+import { generateAttendanceReportPDF } from "@/lib/utils/pdf-generator";
+
+type AttendanceStatus = AttendanceStatusUI;
+
+interface AttendanceRow {
+  id: string;
+  name: string;
+  email: string;
+  empId: string;
+  dept: string;
+  date: string;
+  dateLabel: string;
+  clockIn: string;
+  clockOut: string;
+  status: AttendanceStatus;
+  location: string;
+  avatar?: string;
+}
+
+function statusBadgeVariant(status: AttendanceStatus) {
+  type BadgeVariant = BadgeProps["variant"];
+  const s = status.toUpperCase();
+  if (s.includes("SAKIT") || s.includes("IZIN") || s.includes("CUTI")) {
+    return "secondary" as BadgeVariant;
+  }
+
+  switch (s) {
+    case "HADIR":
+      return "success" as BadgeVariant;
+    case "TELAT":
+      return "warning" as BadgeVariant;
+    case "ALFA":
+      return "danger" as BadgeVariant;
+    case "BELUM ABSENSI":
+      return "outline" as BadgeVariant;
+    default:
+      return "secondary" as BadgeVariant;
+  }
+}
+
+export default function PresensiKaryawanManagerHRPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // ✅ date range picker state (bukan input ketik)
+  const now = new Date();
+  const defaultRange: DateRange = {
+    from: now,
+    to: now,
+  };
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(defaultRange);
+  const [appliedFilters, setAppliedFilters] = useState(() => ({
+    from: format(now, "yyyy-MM-dd"),
+    to: format(now, "yyyy-MM-dd"),
+    department: "all",
+    q: "",
+  }));
+
+  const dateRangeLabel = useMemo(() => {
+    if (!dateRange?.from) return "Pilih rentang tanggal";
+    const from = format(dateRange.from, "dd MMM yyyy", { locale: id });
+    const to = dateRange.to ? format(dateRange.to, "dd MMM yyyy", { locale: id }) : "-";
+    return `${from} - ${to}`;
+  }, [dateRange]);
+
+  const [departmentFilter, setDepartmentFilter] = useState("all");
+
+  // search
+  const [searchEmployee, setSearchEmployee] = useState("");
+
+  // pagination (client-side)
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const [filtersKey, setFiltersKey] = useState(0);
+
+  const [rows, setRows] = useState<AttendanceRow[]>([]);
+  const [geofences, setGeofences] = useState<Geofence[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [summary, setSummary] = useState({
+    total_kehadiran_pct: 0,
+    tepat_waktu: 0,
+    terlambat: 0,
+    izin_sakit: 0,
+    alfa: 0,
+  });
+
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+  const from = totalItems === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, totalItems);
+
+  const handleReset = () => {
+    setDateRange(defaultRange);
+    setDepartmentFilter("all");
+    setSearchEmployee("");
+    setPage(1);
+    setAppliedFilters({
+      from: format(defaultRange.from as Date, "yyyy-MM-dd"),
+      to: format(defaultRange.to as Date, "yyyy-MM-dd"),
+      department: "all",
+      q: "",
+    });
+    setFiltersKey((k) => k + 1);
+  };
+
+  const handleApplyFilter = () => {
+    if (!dateRange?.from || !dateRange?.to) return;
+    setAppliedFilters({
+      from: format(dateRange.from, "yyyy-MM-dd"),
+      to: format(dateRange.to, "yyyy-MM-dd"),
+      department: departmentFilter,
+      q: searchEmployee,
+    });
+    setPage(1);
+    setFiltersKey((k) => k + 1);
+  };
+
+  const mapItemsToRows = useCallback(
+    (items: ManagerAttendanceItem[]): AttendanceRow[] =>
+      items.map((it) => ({
+        id: it.id,
+        name: it.full_name,
+        email: it.email,
+        empId: it.payroll_number,
+        dept: it.department_name,
+        date: it.date,
+        dateLabel: format(new Date(`${it.date}T00:00:00`), "dd MMM yyyy", { locale: id }),
+        clockIn: it.clock_in_time || "--:--",
+        clockOut: it.clock_out_time || "--:--",
+        status: it.status,
+        location: it.location || "Unrecorded",
+        avatar: (it as any).avatar || undefined, // Ambil avatar jika ada di API
+      })),
+    []
+  );
+
+  useEffect(() => {
+    const loadGeofences = async () => {
+      try {
+        const data = await geofenceApi.getAll();
+        setGeofences(data);
+      } catch {
+        setGeofences([]);
+      }
+    };
+
+    loadGeofences();
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(null);
+    try {
+      const data = await attendanceManagerApi.list({
+        from: appliedFilters.from,
+        to: appliedFilters.to,
+        department: appliedFilters.department,
+        q: appliedFilters.q,
+        page,
+        page_size: pageSize,
+      });
+
+      setTotalItems(data.total);
+      setSummary(data.summary);
+      setRows(mapItemsToRows(data.items));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Gagal memuat data presensi";
+      setLoadError(message);
+      setRows([]);
+      setTotalItems(0);
+      setSummary({
+        total_kehadiran_pct: 0,
+        tepat_waktu: 0,
+        terlambat: 0,
+        izin_sakit: 0,
+        alfa: 0,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [appliedFilters.department, appliedFilters.from, appliedFilters.q, appliedFilters.to, mapItemsToRows, page]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, filtersKey, page]);
+
+  const handleExportCsv = async () => {
+    try {
+      const blob = await attendanceManagerApi.exportCsv({
+        from: appliedFilters.from,
+        to: appliedFilters.to,
+        department: appliedFilters.department,
+        q: appliedFilters.q,
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `presensi_${appliedFilters.from}_${appliedFilters.to}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Gagal export laporan CSV";
+      setLoadError(message);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (rows.length === 0) return;
+    try {
+      const headers = ["Nama", "NIK", "Departemen", "Tanggal", "Clock In", "Clock Out", "Status", "Lokasi"];
+      const body = rows.map((r) => {
+        const locationLabel = resolveAttendanceLocationLabel(r.location, geofences);
+        return [
+          r.name,
+          r.empId,
+          r.dept,
+          r.dateLabel,
+          r.clockIn,
+          r.clockOut,
+          r.status,
+          locationLabel,
+        ];
+      });
+
+      const blob = await generateAttendanceReportPDF({
+        title: "Laporan Presensi Karyawan (Manager HR)",
+        period: dateRangeLabel,
+        headers,
+        body,
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `presensi_${appliedFilters.from}_${appliedFilters.to}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Gagal export laporan PDF";
+      setLoadError(message);
+    }
+  };
+
+  const stats = useMemo(() => {
+    let tw = 0;
+    let tr = 0;
+    let iz = 0;
+
+    rows.forEach((r) => {
+      const s = (r.status || "").toUpperCase();
+      if (s === "HADIR") tw++;
+      else if (s === "TELAT") tr++;
+      else if (s.includes("IZIN") || s.includes("SAKIT") || s.includes("CUTI")) iz++;
+    });
+
+    const totalK = tw + tr;
+    // Jika total items kecil (satu halaman), hitung persentase dari rows.
+    // Jika besar, gunakan persentase dari API summary sebagai estimasi global.
+    const totalP = totalItems <= pageSize && rows.length > 0
+      ? Math.round((totalK / rows.length) * 100)
+      : summary.total_kehadiran_pct;
+
+    return {
+      totalKehadiran: totalItems <= pageSize ? totalK : (summary.tepat_waktu + summary.terlambat),
+      totalKehadiranPct: totalP,
+      tepatWaktu: totalItems <= pageSize ? tw : summary.tepat_waktu,
+      terlambat: totalItems <= pageSize ? tr : summary.terlambat,
+      izinSakit: totalItems <= pageSize ? iz : summary.izin_sakit,
+    };
+  }, [rows, summary, totalItems, pageSize]);
+
+  const { totalKehadiran, totalKehadiranPct, tepatWaktu, terlambat, izinSakit } = stats;
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">Presensi Karyawan</h1>
+          <p className="text-sm text-gray-600">
+            Kelola data kehadiran harian departemen Sapphire
+          </p>
+        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+              disabled={!appliedFilters.from || !appliedFilters.to || isLoading}
+            >
+              <Download className="h-4 w-4" />
+              Export Laporan
+              <ChevronDown className="h-4 w-4 opacity-70" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleExportCsv}>
+              Export CSV
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportPdf}>
+              Export PDF
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Filter Card */}
+      <Card className="rounded-2xl">
+        <CardContent className="p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            {/* ✅ Filter Tanggal (popover + 2 calendar range) */}
+            <div>
+              <div className="text-[11px] font-semibold text-gray-500 uppercase mb-2">
+                Filter Tanggal
+              </div>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="w-full flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm
+                               hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                    <span className={dateRange?.from ? "text-gray-900" : "text-gray-400"}>
+                      {dateRangeLabel}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-auto p-0" align="start">
+                  <UiCalendar
+                    mode="range"
+                    numberOfMonths={2}
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Filter Departemen */}
+            <div>
+              <div className="text-[11px] font-semibold text-gray-500 uppercase mb-2">
+                Filter Departemen
+              </div>
+              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Semua Departemen" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Departemen</SelectItem>
+                  <SelectItem value="IT Development">IT Development</SelectItem>
+                  <SelectItem value="Finance">Finance</SelectItem>
+                  <SelectItem value="Sales & Mkt">Sales & Mkt</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Actions */}
+            <div className="flex md:justify-end gap-3">
+              <Button variant="outline" className="rounded-xl" onClick={handleReset}>
+                Reset
+              </Button>
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+                onClick={handleApplyFilter}
+                disabled={!dateRange?.from || !dateRange?.to || isLoading}
+                title={!dateRange?.to ? "Pilih rentang tanggal lengkap (mulai & selesai)" : undefined}
+              >
+                Terapkan Filter
+              </Button>
+            </div>
+          </div>
+
+          {/* Search bar (di bawah filter) */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              value={searchEmployee}
+              onChange={(e) => setSearchEmployee(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleApplyFilter();
+                }
+              }}
+              placeholder="Cari karyawan..."
+              className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm
+                         focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Table */}
+      <Card className="rounded-2xl">
+        <CardContent className="p-0">
+          <div className="px-6 pt-6 pb-3">
+            {isLoading && (
+              <div className="text-sm text-gray-600">Memuat presensi...</div>
+            )}
+            {!isLoading && loadError && (
+              <div className="text-sm text-red-600">{loadError}</div>
+            )}
+          </div>
+
+          <div className="overflow-hidden rounded-2xl">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-y border-gray-100">
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Karyawan
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      No Pay / Dept
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Tanggal
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Clock In
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Clock Out
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Lokasi
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      &nbsp;
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {rows.map((r) => {
+                    const locationLabel = resolveAttendanceLocationLabel(r.location, geofences);
+
+                    return (
+                      <tr key={r.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10">
+                              {r.avatar && r.avatar.startsWith("http") ? (
+                                <AvatarImage src={r.avatar} alt={r.name} />
+                              ) : (
+                                <AvatarFallback>
+                                  {r.name
+                                    ? r.name
+                                        .split(" ")
+                                        .map((n) => n[0])
+                                        .join("")
+                                        .toUpperCase()
+                                    : "?"}
+                                </AvatarFallback>
+                              )}
+                            </Avatar>
+                            <div>
+                              <div className="font-semibold text-gray-900">{r.name}</div>
+                              <div className="text-xs text-gray-500">{r.email}</div>
+                            </div>
+                          </div>
+                        </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-900">
+                          {r.empId}
+                        </div>
+                        <div className="text-xs text-gray-500">{r.dept}</div>
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-gray-700">{r.dateLabel}</td>
+
+                      <td className="px-6 py-4">
+                        <span
+                          className={[
+                            "text-sm font-semibold",
+                            r.status === "TELAT" ? "text-red-600" : "text-gray-900",
+                          ].join(" ")}
+                        >
+                          {r.clockIn}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-semibold text-gray-900">
+                          {r.clockOut}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <Badge variant={statusBadgeVariant(r.status)}>{r.status}</Badge>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <MapPin className="h-4 w-4 text-gray-400" />
+                          <span
+                            className={locationLabel === "Unrecorded" ? "italic text-gray-400" : ""}
+                          >
+                            {locationLabel}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 text-right">
+                        <button className="p-2 rounded-lg hover:bg-gray-100">
+                          <MoreVertical className="h-4 w-4 text-gray-500" />
+                        </button>
+                      </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {!isLoading && totalItems === 0 && (
+                <div className="py-12 text-center text-sm text-gray-500">
+                  Tidak ada data presensi ditemukan.
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-4 flex items-center justify-between text-sm text-gray-600">
+              <div>
+                Menampilkan {from} - {to} dari {totalItems} karyawan
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="h-9 w-9 rounded-lg border border-gray-200 bg-white flex items-center justify-center
+                             disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={[
+                      "h-9 w-9 rounded-lg border text-sm font-medium",
+                      p === page
+                        ? "border-blue-600 text-blue-600 bg-blue-50"
+                        : "border-gray-200 text-gray-700 bg-white hover:bg-gray-50",
+                    ].join(" ")}
+                  >
+                    {p}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="h-9 w-9 rounded-lg border border-gray-200 bg-white flex items-center justify-center
+                             disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="rounded-2xl bg-blue-600 text-white">
+          <CardContent className="p-5">
+            <div className="text-xs font-semibold uppercase opacity-90">Total Kehadiran</div>
+            <div className="mt-2 text-3xl font-bold">{totalKehadiran}</div>
+            <div className="mt-2 text-xs opacity-90">{totalKehadiranPct}% dari total records</div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl">
+          <CardContent className="p-5">
+            <div className="text-xs font-semibold uppercase text-gray-500">Tepat Waktu</div>
+            <div className="mt-2 text-3xl font-bold text-green-600">{tepatWaktu}</div>
+            <div className="mt-2 text-xs text-gray-500">Hadir sesuai jadwal</div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl">
+          <CardContent className="p-5">
+            <div className="text-xs font-semibold uppercase text-gray-500">Terlambat</div>
+            <div className="mt-2 text-3xl font-bold text-orange-600">
+              {terlambat}
+            </div>
+            <div className="mt-2 text-xs text-gray-500">Memerlukan review</div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl">
+          <CardContent className="p-5">
+            <div className="text-xs font-semibold uppercase text-gray-500">Izin/Sakit</div>
+            <div className="mt-2 text-3xl font-bold text-blue-600">
+              {izinSakit}
+            </div>
+            <div className="mt-2 text-xs text-gray-500">Telah disetujui HR</div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

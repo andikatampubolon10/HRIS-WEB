@@ -1,0 +1,160 @@
+{
+  "app": {
+    "[project]/HRIS-WEB/app/_not-found/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/accountant/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/accountant/payroll/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/accountant/payroll/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/biometrik/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/geofencing/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/login/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/jam-kerja/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/karyawan/edit-pegawai/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/karyawan/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/karyawan/tambah-pegawai/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/laporan/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/lembur/detail/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/lembur/edit-lembur/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/lembur/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/lembur/tambah-lembur/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/penugasan/detail/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/penugasan/edit-penugasan/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/penugasan/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/penugasan/tambah-penugasan/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/persetujuan-izin-cuti/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/persetujuan-lembur/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-dept/presensi/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/departemen/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/departemen/tambah-departemen/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/gaji-karyawan/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/gaji-karyawan/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/gaji-karyawan/tambah/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/geofencing/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/jabatan/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/jabatan/tambah-jabatan/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/jam-kerja/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/jam-kerja/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/jam-kerja/tambah-jam-kerja/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/karyawan/edit-pegawai/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/karyawan/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/karyawan/tambah-pegawai/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/laporan/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/lembur/detail/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/lembur/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/penugasan/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/persetujuan-izin-cuti/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/persetujuan-lembur/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/persetujuan-registrasi-wajah/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/manager-hr/presensi/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/dashboard/pegawai/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/login/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ],
+    "[project]/HRIS-WEB/app/page": [
+      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}

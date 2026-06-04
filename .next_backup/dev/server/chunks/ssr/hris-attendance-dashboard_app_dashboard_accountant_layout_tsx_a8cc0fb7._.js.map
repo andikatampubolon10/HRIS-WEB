@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Nesty/OneDrive/Documents/GitHub/HRIS/hris-attendance-dashboard/app/dashboard/accountant/layout.tsx"],"sourcesContent":["// app/dashboard/accountant/layout.tsx\r\nimport type { ReactNode } from \"react\";\r\nimport AccountantSidebar from \"./_components/accountant-sidebar\";\r\n\r\nexport default function AccountantLayout({ children }: { children: ReactNode }) {\r\n  return (\r\n    <div className=\"min-h-screen bg-gray-50\">\r\n      <div className=\"flex\">\r\n        {/* Sidebar */}\r\n        <aside className=\"hidden md:block w-64 border-r border-gray-200 bg-white\">\r\n          <AccountantSidebar />\r\n        </aside>\r\n\r\n        {/* Content */}\r\n        <main className=\"flex-1\">{children}</main>\r\n      </div>\r\n    </div>\r\n  );\r\n}"],"names":[],"mappings":"AAAA,sCAAsC;;;;;;;;;;;;;AAIvB,SAAS,iBAAiB,EAAE,QAAQ,EAA2B;IAC5E,qBACE,8OAAC;QAAI,WAAU;kBACb,cAAA,8OAAC;YAAI,WAAU;;8BAEb,8OAAC;oBAAM,WAAU;8BACf,cAAA,8OAAC;;;;;;;;;;8BAIH,8OAAC;oBAAK,WAAU;8BAAU;;;;;;;;;;;;;;;;;AAIlC"}}]
+}
