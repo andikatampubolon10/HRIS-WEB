@@ -71,7 +71,7 @@ export default function BuatPengajuanLemburBaru() {
           // Map backend User to Employee type used here
           const mapped = (results as any[]).map(u => ({
             id: u.id,
-            name: u.full_name,
+            full_name: u.full_name,
             nik: u.payroll_number || u.nik || "N/A"
           }));
           setSearchResults(mapped);
@@ -96,7 +96,7 @@ export default function BuatPengajuanLemburBaru() {
         const schedule = await jamKerjaApi.getByUserId(emp.id);
         setEmployeeSchedules(prev => ({ ...prev, [emp.id]: schedule }));
       } catch (error) {
-        console.error(`Failed to fetch schedule for ${emp.name}`, error);
+        console.error(`Failed to fetch schedule for ${emp.full_name}`, error);
       }
     }
     setSearchEmp("");
@@ -121,7 +121,7 @@ export default function BuatPengajuanLemburBaru() {
 
       // 1. Validasi Hari Kerja
       if (!schedule.day_of_week.includes(dayName)) {
-        toast.error(`${emp.name} tidak memiliki jadwal kerja pada hari ${dayName}.`);
+        toast.error(`${emp.full_name} tidak memiliki jadwal kerja pada hari ${dayName}.`);
         return false;
       }
 
@@ -145,7 +145,7 @@ export default function BuatPengajuanLemburBaru() {
       }
 
       if (isInsideWorkingHours) {
-        toast.error(`Jam mulai lembur ${emp.name} harus di luar jam kerja (${schedule.start_time} - ${schedule.end_time}).`);
+        toast.error(`Jam mulai lembur ${emp.full_name} harus di luar jam kerja (${schedule.start_time} - ${schedule.end_time}).`);
         return false;
       }
     }
@@ -294,7 +294,7 @@ export default function BuatPengajuanLemburBaru() {
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center"
                       onClick={() => addEmployee(emp)}
                     >
-                      <span className="font-medium">{emp.name}</span>
+                      <span className="font-medium">{emp.full_name}</span>
                       <span className="ml-2 text-xs text-gray-500">({emp.nik})</span>
                     </div>
                   ))}
@@ -304,7 +304,7 @@ export default function BuatPengajuanLemburBaru() {
             <div className="flex flex-wrap gap-2">
               {pickedEmployees.map(emp => (
                 <div key={emp.id} className="bg-blue-50 text-blue-800 rounded-full px-3 py-1 flex items-center gap-1 text-sm font-medium">
-                  {emp.name} <span className="text-xs text-blue-500 ml-2">({emp.nik})</span>
+                  {emp.full_name} <span className="text-xs text-blue-500 ml-2">({emp.nik})</span>
                   <button aria-label="Delete" className="ml-1 focus:outline-none text-blue-600 hover:text-red-500" onClick={() => removeEmployee(emp.id)}>
                     &times;
                   </button>

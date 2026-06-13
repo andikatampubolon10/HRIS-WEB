@@ -66,7 +66,7 @@ export default function EditPengajuanLembur({ params }: { params: Promise<{ id: 
         if (employeesList && Array.isArray(employeesList)) {
           const mappedEmps = employeesList.map((e: any) => ({
             id: e.user?.id || e.user_id || e.id,
-            name: e.user?.full_name || e.full_name || e.name || e.employee_name || e.user?.name || "Unknown",
+            full_name: e.user?.full_name || e.full_name || e.name || e.employee_name || e.user?.name || "Unknown",
             nik: e.user?.payroll_number || e.payroll_number || e.nik || e.user?.nik || "N/A",
             position: e.user?.position_name || e.position_name || "-"
           }));
@@ -103,7 +103,7 @@ export default function EditPengajuanLembur({ params }: { params: Promise<{ id: 
           const results = await employeeService.searchEmployees(searchEmp, exclude, currentUser?.department_id);
           const mapped = (results as any[]).map(u => ({
             id: u.id,
-            name: u.full_name,
+            full_name: u.full_name,
             nik: u.payroll_number || u.nik || "N/A"
           }));
           setSearchResults(mapped);
@@ -265,7 +265,7 @@ export default function EditPengajuanLembur({ params }: { params: Promise<{ id: 
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center"
                       onClick={() => addEmployee(emp)}
                     >
-                      <span className="font-medium">{emp.name}</span>
+                      <span className="font-medium">{emp.full_name}</span>
                       <span className="ml-2 text-xs text-gray-500">({emp.nik})</span>
                     </div>
                   ))}
@@ -276,7 +276,7 @@ export default function EditPengajuanLembur({ params }: { params: Promise<{ id: 
               {pickedEmployees.map(emp => (
                 <div key={emp.id} className="bg-blue-50 text-blue-800 rounded-full px-3 py-1.5 flex items-center gap-2 text-sm font-medium shadow-sm border border-blue-100">
                   <div className="flex flex-col leading-tight">
-                    <span>{emp.name}</span>
+                    <span>{emp.full_name}</span>
                     <span className="text-[10px] text-blue-500 font-normal uppercase tracking-wider">{(emp as any).position || "-"} • {emp.nik}</span>
                   </div>
                   <button aria-label="Delete" className="ml-1 focus:outline-none text-blue-400 hover:text-red-500 transition-colors" onClick={() => removeEmployee(emp.id)}>
