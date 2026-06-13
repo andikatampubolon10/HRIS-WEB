@@ -224,7 +224,7 @@ export default function AccountantDashboardPage() {
               <div className="font-semibold text-gray-900">
                 Payroll Pipeline Progress
               </div>
-              <Button variant="link" className="text-blue-600 px-0">
+              <Button variant="ghost" className="text-blue-600 px-0">
                 View Details
               </Button>
             </div>
@@ -296,7 +296,7 @@ export default function AccountantDashboardPage() {
               ))}
             </div>
 
-            <Button variant="link" className="text-blue-600 px-0">
+            <Button variant="ghost" className="text-blue-600 px-0">
               View All Notifications
             </Button>
           </CardContent>
