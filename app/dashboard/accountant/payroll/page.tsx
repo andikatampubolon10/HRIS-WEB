@@ -352,7 +352,7 @@ export default function PayrollPage() {
               <Button variant="outline" className="rounded-xl" size="sm">
                 &lt;
               </Button>
-              <Button variant="secondary" className="rounded-xl" size="sm">
+              <Button variant="default" className="rounded-xl" size="sm">
                 1
               </Button>
               <Button variant="ghost" className="rounded-xl" size="sm">
