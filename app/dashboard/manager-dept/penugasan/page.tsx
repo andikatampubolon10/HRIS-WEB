@@ -1,5 +1,4 @@
 "use client";
-export const runtime = 'edge';
 
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";

@@ -1,6 +1,5 @@
 // app/login/page.tsx
 'use client';
-export const runtime = 'edge';
 
 import { useEffect, useState } from "react";
 import { useAuth } from '@/contexts/AuthContext';
