@@ -32,6 +32,7 @@ type Period = {
   label: string;
   month: number;
   year: number;
+  value?: string;
 };
 
 function formatIDR(n: number) {
