@@ -233,12 +233,18 @@ export default function DeptReportsPage() {
   const departmentId = currentUser?.department_id || "";
   const departmentName = currentUser?.department_name || currentUser?.department || "Departemen Anda";
 
-  // Mock period options
-  const periods: Period[] = [
-    { label: "Oktober 2023", value: "2023-10" },
-    { label: "September 2023", value: "2023-09" },
-    { label: "Agustus 2023", value: "2023-08" },
-  ];
+  // Dynamic period options — last 12 months
+  const periods: Period[] = useMemo(() => {
+    const result: Period[] = [];
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const label = d.toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+      result.push({ label, value });
+    }
+    return result;
+  }, []);
 
   const [period, setPeriod] = useState<Period>(periods[0]);
   const [eventType, setEventType] = useState<EventType>("all");
@@ -253,6 +259,10 @@ export default function DeptReportsPage() {
   const [selected, setSelected] = useState<EmployeeEventRow | null>(null);
 
   const fetchData = useCallback(async () => {
+    if (!departmentId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const data = await getAttendanceActivityReport({
@@ -262,11 +272,21 @@ export default function DeptReportsPage() {
         status: approvalStatus === "all" ? "" : approvalStatus,
         search: query,
       });
-      setAllRows(data.rows.map(mapApiRowToRow));
-      setSummary(data.summary);
-    } catch (err) {
-      console.error(err);
-      toast.error("Gagal mengambil data laporan");
+      // Handle different response structures
+      const rows = data?.rows ?? (Array.isArray(data) ? data : []);
+      const summary = data?.summary ?? null;
+      setAllRows(rows.map(mapApiRowToRow));
+      setSummary(summary);
+    } catch (err: any) {
+      console.error("Laporan error:", err);
+      // Show empty state instead of blocking error
+      setAllRows([]);
+      setSummary(null);
+      const msg = err?.message || "";
+      // Only show toast if it's not a 404 (endpoint might not exist yet)
+      if (!msg.includes("404") && !msg.includes("not found")) {
+        toast.error("Gagal mengambil data laporan. Pastikan koneksi ke server aktif.");
+      }
     } finally {
       setLoading(false);
     }
