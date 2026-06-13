@@ -1,5 +1,4 @@
 "use client";
-export const dynamic = 'force-static';
 import { useEffect, useState } from "react";
 import { ChevronLeft, Save } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";

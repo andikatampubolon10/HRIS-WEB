@@ -1,5 +1,4 @@
 "use client";
-export const dynamic = 'force-static';
 import { useMemo, useState, useEffect, use } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
