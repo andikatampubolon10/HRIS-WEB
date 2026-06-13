@@ -88,10 +88,11 @@ export function ConfirmationDialog({
             {cancelText}
           </Button>
           <Button
-            variant={variant === "destructive" ? "destructive" : "default"}
+            variant="default"
             onClick={handleConfirm}
             className={cn(
-              variant === "default" && "bg-blue-600 hover:bg-blue-700 text-white"
+              variant === "default" && "bg-blue-600 hover:bg-blue-700 text-white",
+              variant === "destructive" && "bg-red-600 hover:bg-red-700 text-white"
             )}
           >
             {confirmText}
