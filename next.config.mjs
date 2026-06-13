@@ -3,9 +3,13 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const __workspaceRoot = path.resolve(__dirname, "..");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: {
+    root: __workspaceRoot,
+  },
   // Allow dev requests from additional origins (silences cross-origin dev warnings)
   allowedDevOrigins: [
     '192.168.56.1',

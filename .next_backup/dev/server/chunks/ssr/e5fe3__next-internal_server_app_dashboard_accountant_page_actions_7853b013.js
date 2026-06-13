@@ -1,7 +1,0 @@
-module.exports = [
-"[project]/hris-attendance-dashboard/.next-internal/server/app/dashboard/accountant/page/actions.js [app-rsc] (server actions loader, ecmascript)", ((__turbopack_context__, module, exports) => {
-
-}),
-];
-
-//# sourceMappingURL=e5fe3__next-internal_server_app_dashboard_accountant_page_actions_7853b013.js.map

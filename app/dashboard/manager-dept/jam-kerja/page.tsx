@@ -1,4 +1,5 @@
 "use client";
+export const runtime = 'edge';
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";

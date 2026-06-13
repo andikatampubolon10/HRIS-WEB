@@ -1,3 +1,0 @@
-module.exports=[6301,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(62081);a.n(d("[project]/HRIS-WEB/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},26567,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(62081);a.n(d("[project]/HRIS-WEB/node_modules/next/dist/client/components/builtin/global-error.js"))},23138,a=>{"use strict";a.i(6301);var b=a.i(26567);a.n(b)}];
-
-//# sourceMappingURL=7a46d_next_dist_client_components_builtin_global-error_6f1fc40c.js.map

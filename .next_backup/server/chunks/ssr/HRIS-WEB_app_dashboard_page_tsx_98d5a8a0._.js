@@ -1,3 +1,0 @@
-module.exports=[31883,a=>{"use strict";var b=a.i(12664),c=a.i(20750),d=a.i(76141),e=a.i(87437);function f(){let{user:a}=(0,c.useAuth)(),f=(0,d.useRouter)();return(0,e.useEffect)(()=>{if(a)switch(a.role){case"manager_hr":f.push("/dashboard/manager-hr");break;case"manager_departemen":f.push("/dashboard/manager-dept");break;case"admin_departemen":f.push("/dashboard/admin-dept");break;case"staf":f.push("/dashboard/staf")}},[a,f]),(0,b.jsxs)("div",{className:"bg-white rounded-lg shadow p-6",children:[(0,b.jsx)("h1",{className:"text-2xl font-bold text-gray-900",children:"Dashboard"}),(0,b.jsx)("p",{className:"mt-2 text-gray-600",children:"Redirecting to your dashboard..."})]})}a.s(["default",()=>f])}];
-
-//# sourceMappingURL=HRIS-WEB_app_dashboard_page_tsx_98d5a8a0._.js.map

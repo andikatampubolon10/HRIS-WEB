@@ -1,8 +1,0 @@
-(globalThis.TURBOPACK_CHUNK_LISTS || (globalThis.TURBOPACK_CHUNK_LISTS = [])).push({
-    script: typeof document === "object" ? document.currentScript : undefined,
-    chunks: [
-  "static/chunks/node_modules_682ea108._.js",
-  "static/chunks/hris-attendance-dashboard_c453212c._.js"
-],
-    source: "dynamic"
-});

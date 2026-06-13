@@ -1,5 +1,6 @@
 // app/dashboard/page.tsx
 'use client';
+export const runtime = 'edge';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
