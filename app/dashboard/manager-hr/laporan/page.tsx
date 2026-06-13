@@ -631,7 +631,7 @@ export default function ReportsPresensiAktivitasPage() {
                       <Td>{impactBadge(r.impact)}</Td>
 
                       <Td className="text-right">
-                        <Button variant="link" className="text-blue-600 px-0" onClick={() => openDetail(r)}>
+                        <Button variant="ghost" className="text-blue-600 px-0" onClick={() => openDetail(r)}>
                           Detail
                         </Button>
                       </Td>
