@@ -2,7 +2,7 @@
 export const runtime = 'edge';
 
 import { useEffect, useMemo, useState } from "react";
-import { generateLastMonths, Period } from "@/lib/utils/date-periods";
+import { generateLastMonths } from "@/lib/utils/date-periods";
 import {
   CalendarDays,
   ChevronDown,
