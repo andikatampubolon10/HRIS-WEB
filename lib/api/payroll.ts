@@ -28,6 +28,7 @@ export type PayrollSummary = {
   employees: number;
   pipeline: {
     draft: number;
+    pending: number;
     approved: number;
     paid: number;
   };
@@ -68,7 +69,7 @@ export const payrollApi = {
       totalLateDeduction: 0,
       bonusPool: 0,
       employees: 0,
-      pipeline: { draft: 0, approved: 0, paid: 0 }
+      pipeline: { draft: 0, pending: 0, approved: 0, paid: 0 }
     };
 
     const uniqueUsers = new Set();
