@@ -1,5 +1,5 @@
 "use client";
-export const runtime = 'edge';
+export const dynamic = 'force-static';
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";

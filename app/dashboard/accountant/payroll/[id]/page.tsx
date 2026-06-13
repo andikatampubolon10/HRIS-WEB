@@ -1,5 +1,5 @@
 "use client";
-export const runtime = 'edge';
+export const dynamic = 'force-static';
 import { useMemo, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Download, ChevronRight, ArrowLeft, CalendarDays, CheckCircle2, XCircle, Clock } from "lucide-react";
