@@ -9,12 +9,12 @@ interface MonitoringTableProps {
   emptyMessage?: string;
 }
 
-function statusVariant(status: Employee["status"]): "success" | "warning" | "destructive" | "secondary" {
+function statusVariant(status: Employee["status"]): "success" | "warning" | "danger" | "secondary" {
   switch (status) {
     case "HADIR":   return "success";
     case "TELAT":   return "warning";
     case "IZIN":    return "secondary";
-    case "ALPHA":   return "destructive";
+    case "ALPHA":   return "danger";
     default:        return "secondary";
   }
 }
