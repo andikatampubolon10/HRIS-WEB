@@ -2,18 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, MoreVertical, UserX, UserCheck } from "lucide-react";
+import { Search, Edit2, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Employee } from "@/types";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { employeeService } from "@/lib/api/employee";
 import { authService } from "@/lib/api/auth";
@@ -55,9 +50,7 @@ export function EmployeeTable({
 
   // Buka dialog konfirmasi — hanya untuk aksi Nonaktifkan
   // Untuk Aktifkan, langsung eksekusi tanpa konfirmasi
-  const handleToggleClick = (e: React.MouseEvent, employee: Employee) => {
-    e.stopPropagation();
-
+  const handleToggleClick = (employee: Employee) => {
     if (employee.status === "AKTIF") {
       // Nonaktifkan → tampilkan konfirmasi
       setTargetEmployee(employee);
@@ -65,6 +58,29 @@ export function EmployeeTable({
     } else {
       // Aktifkan kembali → langsung eksekusi
       void executeToggle(employee, true);
+    }
+  };
+
+  const handleEditClick = (e: React.MouseEvent, employee: Employee) => {
+    e.stopPropagation();
+    const role = authService.getUser()?.role;
+    const path =
+      role === "manager_hr"
+        ? `/dashboard/manager-hr/karyawan/edit-pegawai/${employee.id}`
+        : `/dashboard/manager-dept/karyawan/edit-pegawai/${employee.id}`;
+    router.push(path);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, employee: Employee) => {
+    e.stopPropagation();
+    if (confirm(`Apakah Anda yakin ingin menghapus ${employee.name}?`)) {
+      employeeService.deleteEmployee(employee.id).then(() => {
+        toast.success("Pegawai berhasil dihapus");
+        onEmployeeUpdated?.();
+      }).catch((err) => {
+        toast.error("Gagal menghapus pegawai");
+        console.error(err);
+      });
     }
   };
 
@@ -214,39 +230,30 @@ export function EmployeeTable({
                       </Badge>
                     </td>
                     <td className="py-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button
-                            className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 disabled:opacity-50"
-                            onClick={(e) => e.stopPropagation()}
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={(e) => handleEditClick(e, employee)}
+                          className="text-gray-400 hover:text-blue-600 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit2 className="h-5 w-5" />
+                        </button>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Switch
+                            checked={employee.status === "AKTIF"}
+                            onCheckedChange={() => handleToggleClick(employee)}
                             disabled={isUpdating}
-                          >
-                            <MoreVertical className="h-5 w-5" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => handleToggleClick(e, employee)}
-                            className={
-                              employee.status === "AKTIF"
-                                ? "text-red-600"
-                                : "text-green-600"
-                            }
-                          >
-                            {employee.status === "AKTIF" ? (
-                              <>
-                                <UserX className="mr-2 h-4 w-4" />
-                                Nonaktifkan
-                              </>
-                            ) : (
-                              <>
-                                <UserCheck className="mr-2 h-4 w-4" />
-                                Aktifkan
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          />
+                        </div>
+                        <button
+                          onClick={(e) => handleDeleteClick(e, employee)}
+                          className="text-gray-400 hover:text-red-600 transition-colors"
+                          title="Hapus"
+                          disabled={isUpdating}
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

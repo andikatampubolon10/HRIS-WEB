@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { geofenceApi } from '@/lib/api/geofence';
 import { Geofence } from '@/types/geofence';
 import GeofencingMap from '@/components/geofencing/GeofencingMap';
-import { MapPinIcon, Cog6ToothIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, Cog6ToothIcon, ArrowPathIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { toast, Toaster } from 'react-hot-toast';
+import { Switch } from '@/components/ui/switch';
 
 export default function GeofencingPage() {
   const [geofences, setGeofences] = useState<Geofence[]>([]);
@@ -141,6 +142,17 @@ export default function GeofencingPage() {
       const message = err instanceof Error ? err.message : 'Gagal menyimpan perubahan';
       console.error('Error saving geofence:', err);
       toast.error(message);
+    }
+  };
+
+  const handleToggleActive = async (geofence: Geofence) => {
+    try {
+      await geofenceApi.update(geofence.id, { is_active: !geofence.is_active });
+      toast.success(geofence.is_active ? 'Lokasi dinonaktifkan' : 'Lokasi diaktifkan');
+      await loadGeofences();
+    } catch (err: unknown) {
+      console.error('Error toggling geofence:', err);
+      toast.error('Gagal mengubah status lokasi');
     }
   };
 
@@ -457,13 +469,18 @@ export default function GeofencingPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
                           <button
                             onClick={() => handleGeofenceSelect(geofence)}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                            className="text-gray-400 hover:text-blue-600 transition-colors"
+                            title="Edit"
                           >
-                            Edit
+                            <PencilIcon className="h-5 w-5" />
                           </button>
+                          <Switch
+                            checked={geofence.is_active}
+                            onCheckedChange={() => handleToggleActive(geofence)}
+                          />
                           <button
                             onClick={() => {
                               if (confirm(`Hapus lokasi "${geofence.name}"?`)) {
@@ -473,9 +490,10 @@ export default function GeofencingPage() {
                                 });
                               }
                             }}
-                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                            className="text-gray-400 hover:text-red-600 transition-colors"
+                            title="Hapus"
                           >
-                            Hapus
+                            <TrashIcon className="h-5 w-5" />
                           </button>
                         </div>
                       </td>

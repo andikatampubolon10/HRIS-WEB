@@ -6,6 +6,7 @@ import { Search, Plus, Edit2, Ban, CheckCircle, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { departmentApi } from "@/lib/api/department";
 import { employeeService } from "@/lib/api/employee";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
@@ -102,10 +103,10 @@ export default function DepartmentsPage() {
   };
 
   const handleToggleActive = (
-    e: React.MouseEvent,
-    dept: Department
+    dept: Department,
+    e?: React.MouseEvent
   ) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     const action = dept.status === "Nonaktif" ? "activate" : "deactivate";
     setConfirmDialog({
       open: true,
@@ -249,30 +250,23 @@ export default function DepartmentsPage() {
                     </td>
 
                     <td className="py-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-4">
                         <button
                           onClick={(e) => handleEdit(e, dept.id)}
-                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="text-gray-400 hover:text-blue-600 transition-colors"
                           title="Edit"
                         >
-                          <Edit2 className="h-4 w-4" />
+                          <Edit2 className="h-5 w-5" />
                         </button>
-                        <button
-                          onClick={(e) => handleToggleActive(e, dept)}
-                          className={[
-                            "p-2 rounded-lg transition-colors",
-                            dept.status === "Aktif"
-                              ? "text-gray-400 hover:text-amber-600 hover:bg-amber-50"
-                              : "text-gray-400 hover:text-emerald-600 hover:bg-emerald-50",
-                          ].join(" ")}
-                          title={dept.status === "Aktif" ? "Nonaktifkan" : "Aktifkan"}
+                        <div 
+                          className="flex items-center gap-2"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          {dept.status === "Aktif" ? (
-                            <Ban className="h-4 w-4" />
-                          ) : (
-                            <CheckCircle className="h-4 w-4" />
-                          )}
-                        </button>
+                          <Switch
+                            checked={dept.status === "Aktif"}
+                            onCheckedChange={() => handleToggleActive(dept)}
+                          />
+                        </div>
                       </div>
                     </td>
                   </tr>

@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, Plus, ChevronLeft, ChevronRight, Ban, CheckCircle } from "lucide-react";
+import { Search, Plus, ChevronLeft, ChevronRight, Edit2, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
 
 import { departmentApi } from "@/lib/api/department";
@@ -271,37 +272,24 @@ export default function DepartmentPositionsPage() {
 
                     {/* Aksi */}
                     <td className="px-5 py-4 text-right">
-                      <div className="inline-flex items-center gap-2">
+                      <div className="flex items-center justify-end gap-4">
                         <button
                           onClick={() => handleEditPosition(pos.id)}
-                          className="rounded-lg px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 transition-colors"
+                          className="text-gray-400 hover:text-blue-600 transition-colors"
+                          title="Edit"
                         >
-                          Edit
+                          <Edit2 className="h-5 w-5" />
                         </button>
-                        <button
-                          onClick={() => handleToggleActive(pos)}
-                          className={[
-                            "rounded-lg px-3 py-2 text-sm transition-colors",
-                            pos.status === "Aktif"
-                              ? "text-amber-700 hover:bg-amber-50"
-                              : "text-emerald-700 hover:bg-emerald-50",
-                          ].join(" ")}
-                          title={pos.status === "Aktif" ? "Nonaktifkan" : "Aktifkan"}
-                        >
-                          <span className="inline-flex items-center gap-2">
-                            {pos.status === "Aktif" ? (
-                              <Ban className="h-4 w-4" />
-                            ) : (
-                              <CheckCircle className="h-4 w-4" />
-                            )}
-                            {pos.status === "Aktif" ? "Nonaktifkan" : "Aktifkan"}
-                          </span>
-                        </button>
+                        <Switch
+                          checked={pos.status === "Aktif"}
+                          onCheckedChange={() => handleToggleActive(pos)}
+                        />
                         <button
                           onClick={() => handleDeletePosition(pos.id)}
-                          className="rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          className="text-gray-400 hover:text-red-600 transition-colors"
+                          title="Hapus"
                         >
-                          Hapus
+                          <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
                     </td>
