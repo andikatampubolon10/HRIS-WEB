@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_ORIGIN = (() => {
   try {
-    return new URL(process.env.BACKEND_BASE_URL || 'http://localhost:8080').origin;
+    return new URL(process.env.BACKEND_BASE_URL || 'https://hris-backend-phi.vercel.app').origin;
   } catch {
     return 'http://localhost:8080';
   }

@@ -245,14 +245,6 @@ export function EmployeeTable({
                             disabled={isUpdating}
                           />
                         </div>
-                        <button
-                          onClick={(e) => handleDeleteClick(e, employee)}
-                          className="text-gray-400 hover:text-red-600 transition-colors"
-                          title="Hapus"
-                          disabled={isUpdating}
-                        >
-                          <Trash2 className="h-5 w-5" />
-                        </button>
                       </div>
                     </td>
                   </tr>

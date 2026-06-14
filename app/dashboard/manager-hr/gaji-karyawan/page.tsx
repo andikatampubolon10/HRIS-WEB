@@ -114,7 +114,9 @@ async function readJsonSafe<T>(res: Response): Promise<T> {
 
 export default function MasterGajiPage() {
   const router = useRouter();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL?.startsWith('/')
+    ? process.env.NEXT_PUBLIC_API_URL
+    : '/api/v1';
 
   const [q, setQ] = useState("");
   const [dept, setDept] = useState<string>("Semua Departemen");

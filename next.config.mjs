@@ -17,7 +17,7 @@ const nextConfig = {
     'localhost',
   ],
   async rewrites() {
-    const backendBaseUrl = process.env.BACKEND_BASE_URL || 'http://localhost:8080';
+    const backendBaseUrl = process.env.BACKEND_BASE_URL || 'https://hris-backend-phi.vercel.app';
     const backendOrigin = new URL(backendBaseUrl).origin;
     return [
       {

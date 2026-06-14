@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL || "http://localhost:8080";
+const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL || "https://hris-backend-phi.vercel.app";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "OPTIONS") {
