@@ -103,8 +103,8 @@ export function Sidebar() {
           { name: "Jam Kerja", href: `${basePath}/jam-kerja`, icon: "Clock" },
           { name: "Presensi", href: `${basePath}/presensi`, icon: "ClipboardCheck" },
           { name: "Persetujuan Izin & Cuti", href: `${basePath}/persetujuan-izin-cuti`, icon: "FileText" },
-          { name: "Persetujuan Lembur", href: `${basePath}/persetujuan-lembur`, icon: "FileCheckCorner" },
-          { name: "Laporan", href: `${basePath}/laporan`, icon: "FileText" },
+          // { name: "Persetujuan Lembur", href: `${basePath}/persetujuan-lembur`, icon: "FileCheckCorner" },
+          // { name: "Laporan", href: `${basePath}/laporan`, icon: "FileText" },
           { name: "Pengajuan Lembur", href: `${basePath}/lembur`, icon: "FilePlus" },
           { name: "Penugasan", href: `${basePath}/penugasan`, icon: "FileBox" },
         ];
