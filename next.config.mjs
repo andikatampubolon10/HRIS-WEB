@@ -29,10 +29,6 @@ const nextConfig = {
         destination: `${backendOrigin}/api/v1/logout`,
       },
       {
-        source: '/api/v1/leave-requests/:path*',
-        destination: `${backendOrigin}/api/v1/leave-requests/:path*`,
-      },
-      {
         source: '/api/v1/:path*',
         destination: `${backendOrigin}/api/v1/:path*`,
       },
