@@ -71,18 +71,7 @@ export function EmployeeTable({
     router.push(path);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent, employee: Employee) => {
-    e.stopPropagation();
-    if (confirm(`Apakah Anda yakin ingin menghapus ${employee.name}?`)) {
-      employeeService.deleteEmployee(employee.id).then(() => {
-        toast.success("Pegawai berhasil dihapus");
-        onEmployeeUpdated?.();
-      }).catch((err) => {
-        toast.error("Gagal menghapus pegawai");
-        console.error(err);
-      });
-    }
-  };
+
 
   // Eksekusi perubahan status
   const executeToggle = async (employee: Employee, newActive: boolean) => {

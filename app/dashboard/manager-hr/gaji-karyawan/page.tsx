@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Filter, ChevronDown } from "lucide-react";
+import { Plus, Search, Filter, ChevronDown, Edit2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import toast from "react-hot-toast";
 
 type ApiSuccess<T> = {
   success?: boolean;
@@ -125,6 +128,16 @@ export default function MasterGajiPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    row: Row | null;
+    action: "activate" | "deactivate" | null;
+  }>({
+    open: false,
+    row: null,
+    action: null,
+  });
+
   async function fetchRows() {
     setLoading(true);
     setErrorMsg("");
@@ -214,19 +227,25 @@ export default function MasterGajiPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, dept]);
 
-  async function onDeactivate(row: Row) {
-    if (!row.isActive) return;
+  function handleToggleActive(row: Row, checked: boolean) {
+    if (row.isActive === checked) return;
+    setConfirmDialog({
+      open: true,
+      row,
+      action: checked ? "activate" : "deactivate",
+    });
+  }
 
-    const ok = window.confirm(
-      `Nonaktifkan gaji pokok aktif untuk ${row.name} (${row.payrollNumber})?`
-    );
-    if (!ok) return;
+  async function handleConfirmToggle() {
+    const { row, action } = confirmDialog;
+    if (!row || !action) return;
 
     try {
       const token = getToken();
       if (!token) throw new Error("Token tidak ditemukan. Silakan login ulang.");
 
-      const url = `${API_URL}/employee-basic-salaries/users/${row.userId}/deactivate`;
+      const endpoint = action === "activate" ? "activate" : "deactivate";
+      const url = `${API_URL}/employee-basic-salaries/users/${row.userId}/${endpoint}`;
 
       const res = await fetch(url, {
         method: "POST",
@@ -241,9 +260,21 @@ export default function MasterGajiPage() {
         throw new Error(json?.message || `HTTP ${res.status}`);
       }
 
+      toast.success(
+        action === "activate"
+          ? "Gaji pokok berhasil diaktifkan"
+          : "Gaji pokok berhasil dinonaktifkan"
+      );
       await fetchRows();
     } catch (e: any) {
-      alert(e?.message || "Gagal menonaktifkan gaji pokok.");
+      toast.error(
+        e?.message || 
+        (action === "activate" 
+          ? "Gagal mengaktifkan gaji pokok." 
+          : "Gagal menonaktifkan gaji pokok.")
+      );
+    } finally {
+      setConfirmDialog({ open: false, row: null, action: null });
     }
   }
 
@@ -386,32 +417,28 @@ export default function MasterGajiPage() {
                     </td>
 
                     <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          className="rounded-xl"
+                      <div className="flex items-center justify-end gap-4">
+                        <button
                           onClick={() =>
                             router.push(
                               `/dashboard/manager-hr/gaji-karyawan/${r.userId}`
                             )
                           }
+                          className="text-gray-400 hover:text-blue-600 transition-colors"
+                          title="Edit"
                         >
-                          Edit
-                        </Button>
+                          <Edit2 className="h-5 w-5" />
+                        </button>
 
-                        <Button
-                          variant="outline"
-                          className="rounded-xl border-rose-200 text-rose-700 hover:bg-rose-50"
-                          onClick={() => onDeactivate(r)}
-                          disabled={!r.isActive}
-                          title={
-                            r.isActive
-                              ? "Nonaktifkan gaji pokok aktif"
-                              : "Sudah nonaktif"
-                          }
+                        <div 
+                          className="flex items-center gap-2"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          Nonaktifkan
-                        </Button>
+                          <Switch
+                            checked={r.isActive}
+                            onCheckedChange={(checked) => handleToggleActive(r, checked)}
+                          />
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -447,6 +474,34 @@ export default function MasterGajiPage() {
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmationDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => {
+          if (!open) {
+            setConfirmDialog({ open: false, row: null, action: null });
+          }
+        }}
+        title={
+          confirmDialog.action === "activate"
+            ? "Aktifkan Gaji Pokok"
+            : "Nonaktifkan Gaji Pokok"
+        }
+        description={
+          confirmDialog.action === "activate"
+            ? `Apakah Anda yakin ingin mengaktifkan gaji pokok untuk ${confirmDialog.row?.name} (${confirmDialog.row?.payrollNumber})?`
+            : `Apakah Anda yakin ingin menonaktifkan gaji pokok aktif untuk ${confirmDialog.row?.name} (${confirmDialog.row?.payrollNumber})?`
+        }
+        confirmText={
+          confirmDialog.action === "activate"
+            ? "Ya, Aktifkan"
+            : "Ya, Nonaktifkan"
+        }
+        cancelText="Batal"
+        onConfirm={handleConfirmToggle}
+        variant={confirmDialog.action === "deactivate" ? "destructive" : "default"}
+        icon={confirmDialog.action === "activate" ? "activate" : "deactivate"}
+      />
     </div>
   );
 }

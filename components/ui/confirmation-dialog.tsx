@@ -80,13 +80,15 @@ export function ConfirmationDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="mt-2 sm:mt-0"
-          >
-            {cancelText}
-          </Button>
+          {cancelText && (
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="mt-2 sm:mt-0"
+            >
+              {cancelText}
+            </Button>
+          )}
           <Button
             variant="default"
             onClick={handleConfirm}

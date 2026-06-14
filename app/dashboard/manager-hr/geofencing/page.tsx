@@ -7,6 +7,7 @@ import GeofencingMap from '@/components/geofencing/GeofencingMap';
 import { MapPinIcon, Cog6ToothIcon, ArrowPathIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { toast, Toaster } from 'react-hot-toast';
 import { Switch } from '@/components/ui/switch';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 export default function GeofencingPage() {
   const [geofences, setGeofences] = useState<Geofence[]>([]);
@@ -28,6 +29,14 @@ export default function GeofencingPage() {
 
   // ✅ ADD: Preview geofence untuk live preview saat edit
   const [previewGeofence, setPreviewGeofence] = useState<Geofence | null>(null);
+
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    geofence: Geofence | null;
+  }>({
+    open: false,
+    geofence: null,
+  });
 
   useEffect(() => {
     loadGeofences();
@@ -482,14 +491,7 @@ export default function GeofencingPage() {
                             onCheckedChange={() => handleToggleActive(geofence)}
                           />
                           <button
-                            onClick={() => {
-                              if (confirm(`Hapus lokasi "${geofence.name}"?`)) {
-                                geofenceApi.delete(geofence.id).then(() => {
-                                  toast.success('Lokasi berhasil dihapus');
-                                  loadGeofences();
-                                });
-                              }
-                            }}
+                            onClick={() => setConfirmDialog({ open: true, geofence })}
                             className="text-gray-400 hover:text-red-600 transition-colors"
                             title="Hapus"
                           >
@@ -505,6 +507,29 @@ export default function GeofencingPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmationDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => {
+          if (!open) setConfirmDialog({ open: false, geofence: null });
+        }}
+        title="Hapus Lokasi"
+        description={`Apakah Anda yakin ingin menghapus lokasi "${confirmDialog.geofence?.name}"?`}
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        onConfirm={() => {
+          if (confirmDialog.geofence) {
+            geofenceApi.delete(confirmDialog.geofence.id).then(() => {
+              toast.success('Lokasi berhasil dihapus');
+              loadGeofences();
+            }).catch(() => {
+              toast.error('Gagal menghapus lokasi');
+            });
+          }
+        }}
+        variant="destructive"
+        icon="warning"
+      />
     </div>
   );
 }

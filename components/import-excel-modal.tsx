@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { employeeService } from "@/lib/api/employee";
+import toast from "react-hot-toast";
 
 interface ImportExcelModalProps {
   open: boolean;
@@ -46,14 +47,14 @@ export function ImportExcelModal({ open, onOpenChange }: ImportExcelModalProps) 
     );
 
     if (!isValid) {
-      alert("Format file tidak valid. Hanya file Excel (.xlsx, .xls) yang diperbolehkan.");
+      toast.error("Format file tidak valid. Hanya file Excel (.xlsx, .xls) yang diperbolehkan.");
       return;
     }
 
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      alert("Ukuran file terlalu besar. Maksimal 5MB.");
+      toast.error("Ukuran file terlalu besar. Maksimal 5MB.");
       return;
     }
 
@@ -100,13 +101,13 @@ export function ImportExcelModal({ open, onOpenChange }: ImportExcelModalProps) 
       document.body.removeChild(a);
     } catch (err) {
       console.error("Failed to download template:", err);
-      alert("Gagal mengunduh template");
+      toast.error("Gagal mengunduh template");
     }
   };
 
   const handleNext = () => {
     if (currentStep === 1 && !selectedFile) {
-      alert("Silakan pilih file terlebih dahulu");
+      toast.error("Silakan pilih file terlebih dahulu");
       return;
     }
     
@@ -128,7 +129,7 @@ export function ImportExcelModal({ open, onOpenChange }: ImportExcelModalProps) 
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Gagal mengimport file";
       console.error("Import failed:", err);
-      alert(message);
+      toast.error(message);
     } finally {
       setIsImporting(false);
     }

@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import toast from "react-hot-toast";
 
 import { departmentApi } from "@/lib/api/department";
@@ -44,6 +45,17 @@ export default function DepartmentPositionsPage() {
   // pagination simple (client-side)
   const [page, setPage] = useState(1);
   const pageSize = 4;
+
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    type: "delete" | "toggle" | null;
+    posId: string | null;
+    willActivate?: boolean;
+  }>({
+    open: false,
+    type: null,
+    posId: null,
+  });
 
   useEffect(() => {
     if (!departmentId) {
@@ -130,32 +142,43 @@ export default function DepartmentPositionsPage() {
     router.push(`/dashboard/manager-hr/jabatan/tambah-jabatan?edit=${id}`);
   };
 
-  const handleDeletePosition = async (id: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus jabatan ini?")) return;
-    try {
-      await positionApi.delete(id);
-      toast.success("Jabatan berhasil dihapus");
-      await loadData();
-    } catch (e) {
-      console.error(e);
-      toast.error(e instanceof Error ? e.message : "Gagal menghapus jabatan");
-    }
+  const handleDeletePosition = (id: string) => {
+    setConfirmDialog({ open: true, type: "delete", posId: id });
   };
 
-  const handleToggleActive = async (pos: PositionRow) => {
-    const willActivate = pos.status === "Nonaktif";
-    const confirmText = willActivate
-      ? "Apakah Anda yakin ingin mengaktifkan jabatan ini?"
-      : "Apakah Anda yakin ingin menonaktifkan jabatan ini?";
-    if (!confirm(confirmText)) return;
-    try {
-      await positionApi.update(pos.id, { is_active: willActivate });
-      toast.success(willActivate ? "Jabatan berhasil diaktifkan" : "Jabatan berhasil dinonaktifkan");
-      await loadData();
-    } catch (e) {
-      console.error(e);
-      toast.error(willActivate ? "Gagal mengaktifkan jabatan" : "Gagal menonaktifkan jabatan");
+  const handleToggleActive = (pos: PositionRow) => {
+    setConfirmDialog({
+      open: true,
+      type: "toggle",
+      posId: pos.id,
+      willActivate: pos.status === "Nonaktif",
+    });
+  };
+
+  const executeConfirm = async () => {
+    const { type, posId, willActivate } = confirmDialog;
+    if (!posId || !type) return;
+
+    if (type === "delete") {
+      try {
+        await positionApi.delete(posId);
+        toast.success("Jabatan berhasil dihapus");
+        await loadData();
+      } catch (e) {
+        console.error(e);
+        toast.error(e instanceof Error ? e.message : "Gagal menghapus jabatan");
+      }
+    } else if (type === "toggle") {
+      try {
+        await positionApi.update(posId, { is_active: willActivate! });
+        toast.success(willActivate ? "Jabatan berhasil diaktifkan" : "Jabatan berhasil dinonaktifkan");
+        await loadData();
+      } catch (e) {
+        console.error(e);
+        toast.error(willActivate ? "Gagal mengaktifkan jabatan" : "Gagal menonaktifkan jabatan");
+      }
     }
+    setConfirmDialog({ open: false, type: null, posId: null });
   };
 
   const from = totalItems === 0 ? 0 : (page - 1) * pageSize + 1;
@@ -359,6 +382,38 @@ export default function DepartmentPositionsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmationDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => {
+          if (!open) setConfirmDialog({ open: false, type: null, posId: null });
+        }}
+        title={
+          confirmDialog.type === "delete"
+            ? "Hapus Jabatan"
+            : confirmDialog.willActivate
+            ? "Aktifkan Jabatan"
+            : "Nonaktifkan Jabatan"
+        }
+        description={
+          confirmDialog.type === "delete"
+            ? "Apakah Anda yakin ingin menghapus jabatan ini?"
+            : confirmDialog.willActivate
+            ? "Apakah Anda yakin ingin mengaktifkan jabatan ini?"
+            : "Apakah Anda yakin ingin menonaktifkan jabatan ini?"
+        }
+        confirmText={
+          confirmDialog.type === "delete"
+            ? "Ya, Hapus"
+            : confirmDialog.willActivate
+            ? "Ya, Aktifkan"
+            : "Ya, Nonaktifkan"
+        }
+        cancelText="Batal"
+        onConfirm={executeConfirm}
+        variant={confirmDialog.type === "delete" || (confirmDialog.type === "toggle" && !confirmDialog.willActivate) ? "destructive" : "default"}
+        icon={confirmDialog.type === "delete" ? "warning" : confirmDialog.willActivate ? "activate" : "deactivate"}
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import LocationList from '@/components/geofencing/LocationList';
 import LocationConfiguration from '@/components/geofencing/LocationConfiguration';
 import { MapPinIcon, PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 export default function GeofencingPage() {
   const [geofences, setGeofences] = useState<Geofence[]>([]);
@@ -19,6 +20,11 @@ export default function GeofencingPage() {
   const [showConfiguration, setShowConfiguration] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [newLocation, setNewLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    geofence: Geofence | null;
+  }>({ open: false, geofence: null });
 
   // Fetch geofences on mount
   useEffect(() => {
@@ -61,10 +67,13 @@ export default function GeofencingPage() {
     setShowConfiguration(true);
   };
 
-  const handleDelete = async (geofence: Geofence) => {
-    if (!confirm(`Are you sure you want to delete "${geofence.name}"?`)) {
-      return;
-    }
+  const handleDelete = (geofence: Geofence) => {
+    setConfirmDialog({ open: true, geofence });
+  };
+
+  const executeDelete = async () => {
+    const geofence = confirmDialog.geofence;
+    if (!geofence) return;
 
     try {
       await geofenceApi.delete(geofence.id);
@@ -77,6 +86,8 @@ export default function GeofencingPage() {
       const message = err instanceof Error ? err.message : 'Failed to delete geofence';
       console.error('Error deleting geofence:', err);
       toast.error(message);
+    } finally {
+      setConfirmDialog({ open: false, geofence: null });
     }
   };
 
@@ -274,6 +285,20 @@ export default function GeofencingPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmationDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => {
+          if (!open) setConfirmDialog({ open: false, geofence: null });
+        }}
+        title="Hapus Geofence"
+        description={`Are you sure you want to delete "${confirmDialog.geofence?.name}"?`}
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        onConfirm={executeDelete}
+        variant="destructive"
+        icon="warning"
+      />
     </div>
   );
 }

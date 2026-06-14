@@ -15,7 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImportExcelModal } from "@/components/import-excel-modal";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { employeeService } from "@/lib/api/employee";
+import toast from "react-hot-toast";
 import { Department, Position, CreateEmployeeRequest } from "@/types";
 
 export default function AddEmployeePage() {
@@ -25,6 +27,7 @@ export default function AddEmployeePage() {
   const [positions, setPositions] = useState<Position[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successDialog, setSuccessDialog] = useState<{ open: boolean; message: string }>({ open: false, message: "" });
   
   const [formData, setFormData] = useState<CreateEmployeeRequest>({
     payroll_number: "",
@@ -109,17 +112,14 @@ export default function AddEmployeePage() {
       const response = await employeeService.createEmployee(formData);
       
       if (response.temporary_password) {
-        alert(
-          `Pegawai berhasil dibuat!\n\n` +
-          `Email: ${formData.email}\n` +
-          `Password Sementara: ${response.temporary_password}\n\n` +
-          `Mohon catat password ini dan berikan kepada karyawan.`
-        );
+        setSuccessDialog({
+          open: true,
+          message: `Email: ${formData.email}\nPassword Sementara: ${response.temporary_password}\n\nMohon catat password ini dan berikan kepada karyawan.`
+        });
       } else {
-        alert("Pegawai berhasil dibuat!");
+        toast.success("Pegawai berhasil dibuat!");
+        router.push("/dashboard/manager-hr/karyawan");
       }
-      
-      router.push("/dashboard/manager-hr/karyawan");
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Gagal membuat pegawai. Silakan coba lagi.";
@@ -143,7 +143,7 @@ export default function AddEmployeePage() {
       document.body.removeChild(a);
     } catch (err) {
       console.error("Failed to download template:", err);
-      alert("Gagal mengunduh template");
+      toast.error("Gagal mengunduh template");
     }
   };
 
@@ -532,6 +532,22 @@ export default function AddEmployeePage() {
       <ImportExcelModal
         open={isImportModalOpen}
         onOpenChange={setIsImportModalOpen}
+      />
+
+      <ConfirmationDialog
+        open={successDialog.open}
+        onOpenChange={(open) => {
+          setSuccessDialog({ ...successDialog, open });
+          if (!open) {
+            router.push("/dashboard/manager-hr/karyawan");
+          }
+        }}
+        title="Pegawai Berhasil Dibuat!"
+        description={successDialog.message}
+        icon="activate"
+        confirmText="Tutup"
+        cancelText=""
+        onConfirm={() => router.push("/dashboard/manager-hr/karyawan")}
       />
     </>
   );
